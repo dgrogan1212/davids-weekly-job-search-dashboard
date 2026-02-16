@@ -1,50 +1,70 @@
 import React, { useState, useEffect } from "react";
 
-const week = [
-  {
-    day: "Monday",
-    tasks: [
-      { text: "Identify 15–20 new roles", time: 30 },
-      { text: "Select 5 roles to pursue", time: 20 },
-      { text: "Send 2 networking messages", time: 20 },
-      { text: "Update tracker", time: 10 },
-    ],
-  },
-  {
-    day: "Tuesday",
-    tasks: [
-      { text: "Submit 3 tailored applications", time: 90 },
-      { text: "Send 1 networking outreach", time: 15 },
-      { text: "Send 1 follow-up message", time: 10 },
-    ],
-  },
-  {
-    day: "Wednesday",
-    tasks: [
-      { text: "Schedule or hold 1 informational call", time: 45 },
-      { text: "Submit 2 applications", time: 60 },
-      { text: "Send 1–2 outreach messages", time: 15 },
-      { text: "Update tracker", time: 10 },
-    ],
-  },
-  {
-    day: "Thursday",
-    tasks: [
-      { text: "Submit 3 tailored applications", time: 90 },
-      { text: "Send 1 networking outreach", time: 15 },
-      { text: "Follow up on 2 past applications", time: 20 },
-    ],
-  },
-  {
-    day: "Friday",
-    tasks: [
-      { text: "Submit 1–2 easier applications", time: 45 },
-      { text: "Send 2 follow-ups", time: 20 },
-      { text: "Clean tracker", time: 10 },
-      { text: "Write weekly wins & plan next week", time: 15 },
-    ],
-  },
-];
+// Generate current week's dates
+const getWeekWithDates = () => {
+  const today = new Date();
+  const start = new Date(today);
+  start.setDate(today.getDate() - today.getDay() + 1); // Monday start
+
+  const baseWeek = [
+    {
+      day: "Monday",
+      tasks: [
+        { text: "Identify 15–20 new roles", time: 30 },
+        { text: "Select 5 roles to pursue", time: 20 },
+        { text: "Send 2 networking messages", time: 20 },
+        { text: "Update tracker", time: 10 },
+      ],
+    },
+    {
+      day: "Tuesday",
+      tasks: [
+        { text: "Submit 3 tailored applications", time: 90 },
+        { text: "Send 1 networking outreach", time: 15 },
+        { text: "Send 1 follow-up message", time: 10 },
+      ],
+    },
+    {
+      day: "Wednesday",
+      tasks: [
+        { text: "Schedule or hold 1 informational call", time: 45 },
+        { text: "Submit 2 applications", time: 60 },
+        { text: "Send 1–2 outreach messages", time: 15 },
+        { text: "Update tracker", time: 10 },
+      ],
+    },
+    {
+      day: "Thursday",
+      tasks: [
+        { text: "Submit 3 tailored applications", time: 90 },
+        { text: "Send 1 networking outreach", time: 15 },
+        { text: "Follow up on 2 past applications", time: 20 },
+      ],
+    },
+    {
+      day: "Friday",
+      tasks: [
+        { text: "Submit 1–2 easier applications", time: 45 },
+        { text: "Send 2 follow-ups", time: 20 },
+        { text: "Clean tracker", time: 10 },
+        { text: "Write weekly wins & plan next week", time: 15 },
+      ],
+    },
+  ];
+
+  return baseWeek.map((d, i) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + i);
+
+    return {
+      ...d,
+      dateLabel: date.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
+};
 
 const STORAGE_KEY = "davids-dashboard";
 
@@ -52,6 +72,7 @@ export default function App() {
   const [checked, setChecked] = useState({});
   const [view, setView] = useState("week");
   const [history, setHistory] = useState([]);
+  const week = getWeekWithDates();
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -91,39 +112,41 @@ export default function App() {
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
+    backdropFilter: "blur(6px)",
+  };
+
+  const modernButton = {
+    background: "rgba(255,255,255,0.15)",
+    border: "1px solid rgba(255,255,255,0.3)",
+    color: "white",
+    padding: "8px 16px",
+    borderRadius: 999,
+    cursor: "pointer",
+    margin: "0 4px",
   };
 
   const skyline = (
-    <svg viewBox="0 0 1000 120" style={{ width: "100%", height: "20vh", fill: "white" }}>
-      <rect x="0" y="80" width="1000" height="40" />
-      <rect x="120" y="40" width="60" height="40" />
-      <rect x="200" y="20" width="50" height="60" />
-      <rect x="280" y="50" width="70" height="30" />
-      <rect x="380" y="10" width="40" height="70" />
-      <rect x="450" y="35" width="60" height="45" />
-      <rect x="540" y="25" width="50" height="55" />
-      <rect x="620" y="45" width="70" height="35" />
-      <rect x="720" y="15" width="40" height="65" />
-      <rect x="790" y="30" width="60" height="50" />
-    </svg>
+    <img
+      src="/dc-skyline.png"
+      alt="DC Skyline"
+      style={{ width: "100%", height: "20vh", objectFit: "contain" }}
+    />
   );
 
   return (
     <div style={containerStyle}>
-      {/* Title */}
+      {/* Header */}
       <div style={{ textAlign: "center", padding: 20 }}>
-        <h1>David's Weekly Job Search Dashboard</h1>
-        <button onClick={() => setView("week")}>Weekly</button>
-        <button onClick={() => setView("calendar")} style={{ marginLeft: 8 }}>
-          Archive
-        </button>
+        <h1 style={{ marginBottom: 10 }}>David's Weekly Job Search Dashboard</h1>
+        <button style={modernButton} onClick={() => setView("week")}>Weekly</button>
+        <button style={modernButton} onClick={() => setView("calendar")}>Archive</button>
       </div>
 
       {/* Weekly View */}
       {view === "week" && (
         <div style={{ padding: 20, flex: 1 }}>
           {/* Progress Bar */}
-          <div style={{ background: "#ccc", height: 20, borderRadius: 10, overflow: "hidden", marginBottom: 20 }}>
+          <div style={{ background: "rgba(255,255,255,0.3)", height: 18, borderRadius: 10, overflow: "hidden", marginBottom: 20 }}>
             <div style={{ width: progress + "%", background: "#4CAF50", height: "100%" }} />
           </div>
 
@@ -132,7 +155,8 @@ export default function App() {
 
             return (
               <div key={d.day} style={dayBox}>
-                <h2>{d.day} — {dayTime} min</h2>
+                <div style={{ opacity: 0.85, fontSize: 14 }}>{d.dateLabel}</div>
+                <h2 style={{ marginTop: 4 }}>{d.day} — {dayTime} min</h2>
 
                 {d.tasks.map((t, i) => {
                   const key = d.day + i;
@@ -161,7 +185,7 @@ export default function App() {
 
       {/* Reset Button */}
       <div style={{ position: "fixed", bottom: 30, right: 30 }}>
-        <button onClick={resetWeek}>Reset Week</button>
+        <button style={modernButton} onClick={resetWeek}>Reset Week</button>
       </div>
 
       {skyline}
