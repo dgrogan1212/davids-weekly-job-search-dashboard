@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-// ===== WEEK DATA =====
+// ===== WEEK DATA WITH ORIGINAL TARGETS =====
 const getWeekWithDates = () => {
   const today = new Date();
   const start = new Date(today);
@@ -10,41 +10,41 @@ const getWeekWithDates = () => {
     {
       day: "Monday",
       tasks: [
-        { text: "Deep role research & job alerts", time: 90 },
-        { text: "Apply to priority roles", time: 60 },
-        { text: "Networking outreach", time: 20 },
+        { text: "Deep role research (15–20 roles) & alerts", time: 90 },
+        { text: "Submit 3 high‑quality applications", time: 60 },
+        { text: "Send 2 networking messages", time: 20 },
       ],
     },
     {
       day: "Tuesday",
       tasks: [
-        { text: "Light role scan", time: 20 },
-        { text: "Submit applications", time: 75 },
-        { text: "Follow‑ups", time: 15 },
+        { text: "Light role scan (5–10 roles)", time: 20 },
+        { text: "Submit 3 applications", time: 75 },
+        { text: "Send 1 follow‑up", time: 15 },
       ],
     },
     {
       day: "Wednesday",
       tasks: [
-        { text: "Light role scan", time: 15 },
-        { text: "Networking / informational calls", time: 45 },
-        { text: "Submit applications", time: 45 },
+        { text: "Light role scan (5–10 roles)", time: 15 },
+        { text: "1 informational call or networking meeting", time: 45 },
+        { text: "Submit 2 applications", time: 45 },
       ],
     },
     {
       day: "Thursday",
       tasks: [
-        { text: "Light role scan", time: 15 },
-        { text: "Submit applications", time: 60 },
-        { text: "Follow‑ups", time: 20 },
+        { text: "Light role scan (5–10 roles)", time: 15 },
+        { text: "Submit 3 applications", time: 60 },
+        { text: "Send 2 follow‑ups", time: 20 },
       ],
     },
     {
       day: "Friday",
       tasks: [
-        { text: "Light role scan", time: 10 },
-        { text: "Light applications", time: 30 },
-        { text: "Weekly reflection & planning", time: 20 },
+        { text: "Light role scan (3–5 roles)", time: 10 },
+        { text: "Submit 1–2 lighter applications", time: 30 },
+        { text: "Weekly reflection & next‑week planning", time: 20 },
       ],
     },
   ];
@@ -73,7 +73,6 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [hovered, setHovered] = useState(null);
 
-  // weekly totals input (Soft‑C)
   const [apps, setApps] = useState("");
   const [networking, setNetworking] = useState("");
   const [interviews, setInterviews] = useState("");
@@ -108,7 +107,7 @@ export default function App() {
     ? today.tasks.every((_, i) => checked[today.day + i])
     : false;
 
-  // ===== SHUTDOWN CUE =====
+  // ===== SHUTDOWN =====
   useEffect(() => {
     const checkTime = () => {
       const now = new Date();
@@ -144,8 +143,13 @@ export default function App() {
     setShowShutdown(false);
   };
 
-  // ===== STREAK CALC =====
-  const streak = history.filter((h) => h.apps >= 10 || h.networking >= 3 || h.interviews >= 2).length;
+  // ===== STREAKS =====
+  const qualifyingWeeks = history.filter(
+    (h) => h.apps >= 10 || h.networking >= 3 || h.interviews >= 2
+  );
+
+  const currentStreak = qualifyingWeeks.length;
+  const longestStreak = qualifyingWeeks.length; // simple version
 
   // ===== STYLES =====
   const containerStyle = {
@@ -175,33 +179,6 @@ export default function App() {
 
   const SectionTitle = ({ children }) => <h2 style={{ marginTop: 0 }}>{children}</h2>;
 
-  // ===== GRAPH =====
-  const Graph = () => {
-    if (history.length === 0) return null;
-
-    const max = Math.max(...history.map((h) => Math.max(h.apps, h.networking, h.interviews)), 1);
-
-    const width = 500;
-    const height = 200;
-
-    const makePath = (key) =>
-      history
-        .map((h, i) => {
-          const x = (i / Math.max(history.length - 1, 1)) * width;
-          const y = height - (h[key] / max) * height;
-          return `${i === 0 ? "M" : "L"}${x},${y}`;
-        })
-        .join(" ");
-
-    return (
-      <svg width="100%" viewBox={`0 0 ${width} ${height}`}>
-        <path d={makePath("apps")} stroke="#4CAF50" fill="none" strokeWidth="3" />
-        <path d={makePath("networking")} stroke="#FFD54F" fill="none" strokeWidth="3" />
-        <path d={makePath("interviews")} stroke="#FF8A65" fill="none" strokeWidth="3" />
-      </svg>
-    );
-  };
-
   return (
     <div style={containerStyle}>
       {/* HEADER */}
@@ -224,15 +201,17 @@ export default function App() {
       {/* WEEKLY VIEW */}
       {view === "week" && (
         <div style={{ padding: 24 }}>
-          {/* STREAK */}
-          <div style={{ ...card, maxWidth: 320 }}>
-            <strong>Momentum:</strong> {streak} week streak
-          </div>
+          {/* MOMENTUM + TOTALS ROW */}
+          <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+            <div style={{ ...card, maxWidth: 260 }}>
+              <SectionTitle>Momentum</SectionTitle>
+              <p>Current streak: <strong>{currentStreak}</strong></p>
+              <p>Longest streak: <strong>{longestStreak}</strong></p>
+            </div>
 
-          {/* TOTALS INPUT */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <div style={{ ...card, width: 260 }}>
               <SectionTitle>Weekly Totals</SectionTitle>
+
               <div style={{ color: "#4CAF50" }}>Applications</div>
               <input value={apps} onChange={(e) => setApps(e.target.value)} style={{ width: "100%" }} />
 
@@ -285,34 +264,70 @@ export default function App() {
         </div>
       )}
 
-      {/* ARCHIVE VIEW */}
-      {view === "archive" && (
-        <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
-          <SectionTitle>Progress Over Time</SectionTitle>
-          <Graph />
-
-          {history.map((w, i) => (
-            <div key={i} style={card}>
-              <strong>Week of {w.date}</strong>
-              <p>Progress: {w.progress}%</p>
-              <p style={{ color: "#4CAF50" }}>Applications: {w.apps}</p>
-              <p style={{ color: "#FFD54F" }}>Networking: {w.networking}</p>
-              <p style={{ color: "#FF8A65" }}>Interviews: {w.interviews}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* PRIORITY VIEW */}
+      {/* PRIORITY LIST */}
       {view === "priority" && (
         <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
-          <SectionTitle>Weekly Application Targets</SectionTitle>
+          <SectionTitle>Applications Priority List</SectionTitle>
+
+          {/* Weekly Targets */}
           <div style={card}>
-            <p><strong>12–15 high‑quality applications/week</strong></p>
+            <strong>12–15 high‑quality applications/week</strong>
             <ul>
               <li>6 Healthcare / Universities</li>
               <li>3 Infrastructure / Civic</li>
               <li>3–6 Corporate stabilizers</li>
+            </ul>
+          </div>
+
+          {/* VERY HIGH */}
+          <div style={card}>
+            <strong>Very High Priority — Healthcare & Universities</strong>
+            <ul>
+              <li><a href="https://www.medstarhealth.org" target="_blank">MedStar Health</a></li>
+              <li><a href="https://www.kaiserpermanentejobs.org" target="_blank">Kaiser Permanente</a></li>
+              <li><a href="https://childrensnational.org" target="_blank">Children’s National Hospital</a></li>
+              <li><a href="https://www.gwhospital.com" target="_blank">GWU Hospital</a></li>
+              <li><a href="https://www.inova.org" target="_blank">Inova Health System</a></li>
+              <li><a href="https://www.georgetown.edu" target="_blank">Georgetown University</a></li>
+              <li><a href="https://www.gwu.edu" target="_blank">George Washington University</a></li>
+              <li><a href="https://www.american.edu" target="_blank">American University</a></li>
+              <li><a href="https://www.umd.edu" target="_blank">University of Maryland</a></li>
+              <li><a href="https://howard.edu" target="_blank">Howard University</a></li>
+            </ul>
+          </div>
+
+          {/* HIGH */}
+          <div style={card}>
+            <strong>High Priority — Civic Infrastructure</strong>
+            <ul>
+              <li><a href="https://www.wmata.com" target="_blank">WMATA</a></li>
+              <li><a href="https://www.mwaa.com" target="_blank">Metropolitan Washington Airports Authority</a></li>
+              <li><a href="https://www.dchousing.org" target="_blank">DC Housing Authority</a></li>
+              <li><a href="https://eventsdc.com" target="_blank">Events DC</a></li>
+              <li><a href="https://www.si.edu" target="_blank">Smithsonian Institution</a></li>
+            </ul>
+          </div>
+
+          {/* MEDIUM‑HIGH */}
+          <div style={card}>
+            <strong>Medium‑High Priority — Mission Nonprofits</strong>
+            <ul>
+              <li><a href="https://www.brookings.edu" target="_blank">Brookings Institution</a></li>
+              <li><a href="https://www.urban.org" target="_blank">Urban Institute</a></li>
+              <li><a href="https://www.pewtrusts.org" target="_blank">Pew Charitable Trusts</a></li>
+              <li><a href="https://www.fhi360.org" target="_blank">FHI 360</a></li>
+              <li><a href="https://www.nationalgeographic.org" target="_blank">National Geographic Society</a></li>
+            </ul>
+          </div>
+
+          {/* BACKUP */}
+          <div style={card}>
+            <strong>Controlled Backup — Corporate Stabilizers</strong>
+            <ul>
+              <li><a href="https://www.capitalonecareers.com" target="_blank">Capital One</a></li>
+              <li><a href="https://www.guidehouse.com/careers" target="_blank">Guidehouse</a></li>
+              <li><a href="https://www.boozallen.com/careers" target="_blank">Booz Allen Hamilton</a></li>
+              <li><a href="https://www.amazon.jobs" target="_blank">Amazon</a></li>
             </ul>
           </div>
         </div>
