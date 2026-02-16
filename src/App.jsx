@@ -86,6 +86,13 @@ export default function App() {
     flexDirection: "column",
   };
 
+  const dayBox = {
+    background: "rgba(255,255,255,0.15)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  };
+
   const skyline = (
     <svg viewBox="0 0 1000 120" style={{ width: "100%", height: "20vh", fill: "white" }}>
       <rect x="0" y="80" width="1000" height="40" />
@@ -103,25 +110,30 @@ export default function App() {
 
   return (
     <div style={containerStyle}>
-      <div style={{ textAlign: "center", padding: "20px 10px" }}>
-        <h1 style={{ margin: 0 }}>David's Weekly Job Search Dashboard</h1>
-        <div style={{ marginTop: 10 }}>
-          <button onClick={() => setView("week")}>Weekly</button>
-          <button onClick={() => setView("calendar")} style={{ marginLeft: 8 }}>Archive</button>
-        </div>
+      {/* Title */}
+      <div style={{ textAlign: "center", padding: 20 }}>
+        <h1>David's Weekly Job Search Dashboard</h1>
+        <button onClick={() => setView("week")}>Weekly</button>
+        <button onClick={() => setView("calendar")} style={{ marginLeft: 8 }}>
+          Archive
+        </button>
       </div>
 
+      {/* Weekly View */}
       {view === "week" && (
         <div style={{ padding: 20, flex: 1 }}>
+          {/* Progress Bar */}
           <div style={{ background: "#ccc", height: 20, borderRadius: 10, overflow: "hidden", marginBottom: 20 }}>
-            <div style={{ width: progress + "%", background: "#4caf50", height: "100%" }} />
+            <div style={{ width: progress + "%", background: "#4CAF50", height: "100%" }} />
           </div>
 
           {week.map((d) => {
             const dayTime = d.tasks.reduce((s, t) => s + t.time, 0);
+
             return (
-              <div key={d.day} style={{ marginBottom: 20 }}>
+              <div key={d.day} style={dayBox}>
                 <h2>{d.day} — {dayTime} min</h2>
+
                 {d.tasks.map((t, i) => {
                   const key = d.day + i;
                   return (
@@ -136,18 +148,18 @@ export default function App() {
         </div>
       )}
 
+      {/* Archive View */}
       {view === "calendar" && (
         <div style={{ padding: 20, flex: 1 }}>
           <h2>Weekly Archive</h2>
           {history.length === 0 && <p>No completed weeks yet.</p>}
           {history.map((w, i) => (
-            <div key={i} style={{ marginBottom: 10 }}>
-              {w.date} — {w.progress}% complete
-            </div>
+            <div key={i}>{w.date} — {w.progress}% complete</div>
           ))}
         </div>
       )}
 
+      {/* Reset Button */}
       <div style={{ position: "fixed", bottom: 30, right: 30 }}>
         <button onClick={resetWeek}>Reset Week</button>
       </div>
