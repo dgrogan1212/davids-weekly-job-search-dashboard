@@ -125,14 +125,6 @@ export default function App() {
     margin: "0 4px",
   };
 
-  const skyline = (
-    <img
-      src="/dc-skyline.png"
-      alt="DC Skyline"
-      style={{ width: "100%", height: "20vh", objectFit: "contain" }}
-    />
-  );
-
   return (
     <div style={containerStyle}>
       {/* Header */}
@@ -145,9 +137,28 @@ export default function App() {
       {/* Weekly View */}
       {view === "week" && (
         <div style={{ padding: 20, flex: 1 }}>
-          {/* Progress Bar */}
-          <div style={{ background: "rgba(255,255,255,0.3)", height: 18, borderRadius: 10, overflow: "hidden", marginBottom: 20 }}>
-            <div style={{ width: progress + "%", background: "#4CAF50", height: "100%" }} />
+          {/* Centered Progress Bar */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
+            <div style={{ position: "relative", width: "66%", background: "rgba(255,255,255,0.3)", height: 22, borderRadius: 12, overflow: "hidden" }}>
+              <div style={{ width: progress + "%", background: "#4CAF50", height: "100%" }} />
+
+              {/* Percentage Overlay */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                {progress}%
+              </div>
+            </div>
           </div>
 
           {week.map((d) => {
@@ -187,8 +198,6 @@ export default function App() {
       <div style={{ position: "fixed", bottom: 30, right: 30 }}>
         <button style={modernButton} onClick={resetWeek}>Reset Week</button>
       </div>
-
-      {skyline}
     </div>
   );
 }
