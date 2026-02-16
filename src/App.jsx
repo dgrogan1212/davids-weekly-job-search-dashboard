@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-// Generate current week's dates
+// ===== WEEK DATA =====
 const getWeekWithDates = () => {
   const today = new Date();
   const start = new Date(today);
@@ -66,6 +66,8 @@ const getWeekWithDates = () => {
 const STORAGE_KEY = "davids-dashboard";
 
 export default function App() {
+  const week = getWeekWithDates();
+
   const [checked, setChecked] = useState({});
   const [view, setView] = useState("week");
   const [history, setHistory] = useState([]);
@@ -78,8 +80,7 @@ export default function App() {
 
   const [showShutdown, setShowShutdown] = useState(false);
 
-  const week = getWeekWithDates();
-
+  // ===== LOAD / SAVE =====
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -93,21 +94,21 @@ export default function App() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ checked, history }));
   }, [checked, history]);
 
+  // ===== PROGRESS =====
   const toggle = (key) => setChecked((p) => ({ ...p, [key]: !p[key] }));
 
   const totalTasks = week.reduce((s, d) => s + d.tasks.length, 0);
   const doneTasks = Object.values(checked).filter(Boolean).length;
   const progress = Math.round((doneTasks / totalTasks) * 100);
 
-  // determine today's tasks completion
+  // ===== TODAY COMPLETION =====
   const todayName = new Date().toLocaleDateString(undefined, { weekday: "long" });
   const today = week.find((d) => d.day === todayName);
-
   const todayComplete = today
     ? today.tasks.every((_, i) => checked[today.day + i])
     : false;
 
-  // show shutdown message if tasks complete OR after 7 PM ET
+  // ===== SHUTDOWN CUE =====
   useEffect(() => {
     const checkTime = () => {
       const now = new Date();
@@ -123,6 +124,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [todayComplete]);
 
+  // ===== RESET WEEK =====
   const resetWeek = () => {
     setHistory([
       {
@@ -142,6 +144,10 @@ export default function App() {
     setShowShutdown(false);
   };
 
+  // ===== STREAK CALC =====
+  const streak = history.filter((h) => h.apps >= 10 || h.networking >= 3 || h.interviews >= 2).length;
+
+  // ===== STYLES =====
   const containerStyle = {
     minHeight: "100vh",
     background: "rgb(40,61,181)",
@@ -169,14 +175,11 @@ export default function App() {
 
   const SectionTitle = ({ children }) => <h2 style={{ marginTop: 0 }}>{children}</h2>;
 
-  // simple SVG line graph for archive
+  // ===== GRAPH =====
   const Graph = () => {
     if (history.length === 0) return null;
 
-    const max = Math.max(
-      ...history.map((h) => Math.max(h.apps, h.networking, h.interviews)),
-      1
-    );
+    const max = Math.max(...history.map((h) => Math.max(h.apps, h.networking, h.interviews)), 1);
 
     const width = 500;
     const height = 200;
@@ -201,13 +204,11 @@ export default function App() {
 
   return (
     <div style={containerStyle}>
-      {/* Header */}
+      {/* HEADER */}
       <div style={{ textAlign: "center", padding: 24 }}>
         <h1>David's Weekly Job Search Dashboard</h1>
-        {[
-          { key: "week", label: "Weekly" },
-          { key: "archive", label: "Archive" },
-        ].map((btn) => (
+
+        {[{ key: "week", label: "Weekly" }, { key: "archive", label: "Archive" }, { key: "priority", label: "Applications Priority List" }].map((btn) => (
           <button
             key={btn.key}
             style={modernButton(btn.key)}
@@ -223,11 +224,15 @@ export default function App() {
       {/* WEEKLY VIEW */}
       {view === "week" && (
         <div style={{ padding: 24 }}>
-          {/* totals input card top‑right */}
+          {/* STREAK */}
+          <div style={{ ...card, maxWidth: 320 }}>
+            <strong>Momentum:</strong> {streak} week streak
+          </div>
+
+          {/* TOTALS INPUT */}
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <div style={{ ...card, width: 260 }}>
               <SectionTitle>Weekly Totals</SectionTitle>
-
               <div style={{ color: "#4CAF50" }}>Applications</div>
               <input value={apps} onChange={(e) => setApps(e.target.value)} style={{ width: "100%" }} />
 
@@ -236,14 +241,10 @@ export default function App() {
 
               <div style={{ color: "#FF8A65", marginTop: 8 }}>Interviews</div>
               <input value={interviews} onChange={(e) => setInterviews(e.target.value)} style={{ width: "100%" }} />
-
-              <p style={{ fontSize: 12, opacity: 0.8, marginTop: 8 }}>
-                Update before weekly reset.
-              </p>
             </div>
           </div>
 
-          {/* Progress Bar */}
+          {/* PROGRESS BAR */}
           <div style={{ display: "flex", justifyContent: "center", margin: "32px 0" }}>
             <div style={{ position: "relative", width: "66%", background: "rgba(255,255,255,0.25)", height: 22, borderRadius: 12 }}>
               <div style={{ width: progress + "%", background: "#4CAF50", height: "100%", borderRadius: 12 }} />
@@ -253,7 +254,28 @@ export default function App() {
             </div>
           </div>
 
-          {/* Shutdown cue */}
+          {/* TASKS */}
+          {week.map((d) => {
+            const totalTime = d.tasks.reduce((s, t) => s + t.time, 0);
+
+            return (
+              <div key={d.day} style={card}>
+                <div style={{ opacity: 0.8 }}>{d.dateLabel}</div>
+                <SectionTitle>{d.day} — {totalTime} min</SectionTitle>
+
+                {d.tasks.map((t, i) => {
+                  const key = d.day + i;
+                  return (
+                    <div key={key} onClick={() => toggle(key)} style={{ cursor: "pointer", marginBottom: 6 }}>
+                      <input type="checkbox" readOnly checked={!!checked[key]} /> {t.text} ({t.time}m)
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+
+          {/* SHUTDOWN MESSAGE */}
           {showShutdown && (
             <div style={{ ...card, maxWidth: 420, margin: "24px auto", textAlign: "center" }}>
               <strong>You did enough today.</strong>
@@ -281,7 +303,22 @@ export default function App() {
         </div>
       )}
 
-      {/* Reset Button */}
+      {/* PRIORITY VIEW */}
+      {view === "priority" && (
+        <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
+          <SectionTitle>Weekly Application Targets</SectionTitle>
+          <div style={card}>
+            <p><strong>12–15 high‑quality applications/week</strong></p>
+            <ul>
+              <li>6 Healthcare / Universities</li>
+              <li>3 Infrastructure / Civic</li>
+              <li>3–6 Corporate stabilizers</li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* RESET */}
       <div style={{ position: "fixed", bottom: 24, right: 24 }}>
         <button
           style={modernButton("reset")}
