@@ -11,7 +11,7 @@ const getWeekWithDates = () => {
       day: "Monday",
       tasks: [
         { text: "Deep role research (15–20 roles) & alerts", time: 90 },
-        { text: "Submit 3 high‑quality applications", time: 60 },
+        { text: "Submit 3 high‑quality applications", time: 90 },
         { text: "Send 2 networking messages", time: 20 },
       ],
     },
@@ -19,24 +19,24 @@ const getWeekWithDates = () => {
       day: "Tuesday",
       tasks: [
         { text: "Light role scan (5–10 roles)", time: 20 },
-        { text: "Submit 3 applications", time: 75 },
-        { text: "Send 1 follow‑up", time: 15 },
+        { text: "Submit 3 applications", time: 60 },
+        { text: "Send 2 follow‑up messages", time: 15 },
       ],
     },
     {
       day: "Wednesday",
       tasks: [
         { text: "Light role scan (5–10 roles)", time: 15 },
-        { text: "1 informational call or networking meeting", time: 45 },
-        { text: "Submit 2 applications", time: 45 },
+        { text: "Schedule or hold 1 informational call or networking meeting", time: 45 },
+        { text: "Submit 2 applications", time: 40 },
       ],
     },
     {
       day: "Thursday",
       tasks: [
         { text: "Light role scan (5–10 roles)", time: 15 },
-        { text: "Submit 3 applications", time: 60 },
-        { text: "Send 2 follow‑ups", time: 20 },
+        { text: "Submit 3 tailored applications", time: 90 },
+        { text: "Send 2 follow‑ups AND/OR new networking messages", time: 20 },
       ],
     },
     {
